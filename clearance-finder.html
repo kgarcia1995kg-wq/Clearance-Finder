@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clearance Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fdf8f2;
+      --surface: #ffffff;
+      --accent: #e84c30;
+      --accent-soft: #fff0ed;
+      --gold: #c9922a;
+      --text: #1a1208;
+      --muted: #7a6e62;
+      --border: #ece5d8;
+      --green: #1a7a4a;
+      --green-soft: #e8f7ef;
+      --shadow: 0 2px 16px rgba(26,18,8,0.08);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--text);
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .logo-text span { color: var(--accent); }
+    .item-count {
+      font-size: 0.8rem;
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--text);
+      padding: 40px 20px 52px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .hero h1 em {
+      color: var(--accent);
+      font-style: normal;
+    }
+    .hero p {
+      color: #aaa;
+      font-size: 1rem;
+      max-width: 440px;
+      margin: 0 auto 28px;
+      font-weight: 300;
+    }
+
+    /* ── SEARCH / FILTER BAR ── */
+    .controls {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      flex: 1 1 240px;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: #888; pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 12px 16px 12px 40px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      outline: none;
+      transition: background .2s;
+    }
+    .search-wrap input::placeholder { color: #888; }
+    .search-wrap input:focus { background: rgba(255,255,255,0.18); }
+    select.filter {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      outline: none;
+      cursor: pointer;
+      flex: 0 1 auto;
+    }
+    select.filter option { background: #222; color: #fff; }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      background: var(--gold);
+      padding: 10px 20px;
+    }
+    .stats-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ── MAIN CONTENT ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 16px 60px;
+    }
+
+    /* ── ADD FORM ── */
+    .add-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px dashed var(--border);
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .add-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .add-section h2 .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      letter-spacing: .04em;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232,76,48,0.1);
+    }
+    .btn-add {
+      margin-top: 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 11px 26px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background .2s, transform .1s;
+    }
+    .btn-add:hover { background: #cc3a22; }
+    .btn-add:active { transform: scale(0.97); }
+
+    .location-cell { display: flex; flex-direction: column; gap: 2px; }
+    .loc-city { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+    .loc-zip  { font-size: 0.75rem; color: var(--muted); font-weight: 400; }
+
+    /* ── TABLE WRAPPER ── */
+    .table-section { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .table-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .table-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+    }
+    .sort-info { font-size: 0.78rem; color: var(--muted); }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+    }
+    thead tr { background: #f7f2ea; }
+    th {
+      padding: 12px 18px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color .2s;
+    }
+    th:hover { color: var(--accent); }
+    th .sort-arrow { margin-left: 4px; opacity: .4; }
+    th.active-sort { color: var(--accent); }
+    th.active-sort .sort-arrow { opacity: 1; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+      animation: rowIn .3s ease both;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fdf5f3; }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    td {
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    .store-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #f0eae0;
+      color: var(--muted);
+    }
+    .product-name { font-weight: 500; }
+    .price-orig {
+      color: var(--muted);
+      text-decoration: line-through;
+      font-size: 0.85rem;
+    }
+    .price-markdown {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+    .savings-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: color .2s, background .2s;
+    }
+    .btn-delete:hover { color: var(--accent); background: var(--accent-soft); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      .hero { padding: 28px 16px 40px; }
+      th, td { padding: 11px 12px; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .table-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🏷️</div>
+      <span class="logo-text">Clearance <span>Finder</span></span>
+    </div>
+    <span class="item-count" id="itemCount">0 deals</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Find the Best<br><em>Markdown Deals</em></h1>
+  <p>Track clearance prices across stores and never miss a bargain again.</p>
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search products or stores…" oninput="renderTable()"/>
+    </div>
+    <select class="filter" id="storeFilter" onchange="renderTable()">
+      <option value="">All Stores</option>
+    </select>
+    <select class="filter" id="sortSelect" onchange="renderTable()">
+      <option value="savings-desc">Best Savings ↓</option>
+      <option value="savings-asc">Savings ↑</option>
+      <option value="price-asc">Price ↑</option>
+      <option value="price-desc">Price ↓</option>
+      <option value="pct-desc">% Off ↓</option>
+    </select>
+  </div>
+</div>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat">📦 <span id="statDeals">0</span>&nbsp;Deals Tracked</div>
+    <div class="stat">💰 Total Savings:&nbsp;<span id="statSavings">$0.00</span></div>
+    <div class="stat">🏪 <span id="statStores">0</span>&nbsp;Stores</div>
+    <div class="stat">🔥 Best Deal:&nbsp;<span id="statBest">—</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- ADD FORM -->
+  <div class="add-section">
+    <h2>Add a Deal <span class="badge">NEW</span></h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Store</label>
+        <input type="text" id="fStore" placeholder="e.g. Target" list="storeSuggestions"/>
+        <datalist id="storeSuggestions"></datalist>
+      </div>
+      <div class="form-group" style="grid-column: span 2">
+        <label>Product Name</label>
+        <input type="text" id="fProduct" placeholder="e.g. Nike Air Max 90"/>
+      </div>
+      <div class="form-group">
+        <label>Original Price ($)</label>
+        <input type="number" id="fOrig" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label>Markdown Price ($)</label>
+        <input type="number" id="fMark" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" id="fCity" placeholder="e.g. Charlotte"/>
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <input type="text" id="fState" placeholder="e.g. NC" maxlength="2" style="text-transform:uppercase"/>
+      </div>
+      <div class="form-group">
+        <label>ZIP Code</label>
+        <input type="text" id="fZip" placeholder="e.g. 28201" maxlength="10"/>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addDeal()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add Deal
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2>Clearance Deals</h2>
+      <span class="sort-info" id="resultCount">Showing all deals</span>
+    </div>
+    <div class="table-scroll">
+      <table id="dealsTable">
+        <thead>
+          <tr>
+            <th onclick="toggleSort('store')">Store <span class="sort-arrow" id="arrow-store">⇅</span></th>
+            <th onclick="toggleSort('product')">Product Name <span class="sort-arrow" id="arrow-product">⇅</span></th>
+            <th onclick="toggleSort('location')">Location <span class="sort-arrow" id="arrow-location">⇅</span></th>
+            <th onclick="toggleSort('orig')">Original Price <span class="sort-arrow" id="arrow-orig">⇅</span></th>
+            <th onclick="toggleSort('mark')">Markdown Price <span class="sort-arrow" id="arrow-mark">⇅</span></th>
+            <th onclick="toggleSort('savings')">Savings <span class="sort-arrow" id="arrow-savings">⇅</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>Clearance Finder — track deals, save more 🏷️</footer>
+
+<script>
+  // ── STORE ──
+  let deals = JSON.parse(localStorage.getItem('clearanceDeals') || '[]');
+  let currentSort = { col: 'savings', dir: 'desc' };
+
+  // Seed sample data if empty
+  if (!deals.length) {
+    deals = [
+      { id: 1, store: 'Target',    product: 'Dyson V8 Vacuum',              orig: 399.99, mark: 249.99, city: 'Charlotte',    state: 'NC', zip: '28201' },
+      { id: 2, store: 'Walmart',   product: 'Samsung 55" 4K TV',            orig: 649.99, mark: 399.00, city: 'Atlanta',      state: 'GA', zip: '30301' },
+      { id: 3, store: 'Best Buy',  product: 'Sony WH-1000XM4 Headphones',   orig: 349.99, mark: 199.99, city: 'Austin',       state: 'TX', zip: '78701' },
+      { id: 4, store: 'Costco',    product: 'Ninja Air Fryer XL',           orig: 179.99, mark: 99.99,  city: 'Phoenix',      state: 'AZ', zip: '85001' },
+      { id: 5, store: 'Target',    product: "Levi's 505 Jeans",             orig: 69.50,  mark: 28.00,  city: 'Charlotte',    state: 'NC', zip: '28202' },
+      { id: 6, store: "Macy's",    product: 'KitchenAid Stand Mixer',       orig: 499.99, mark: 279.00, city: 'Chicago',      state: 'IL', zip: '60601' },
+    ];
+    save();
+  }
+
+  function save() {
+    localStorage.setItem('clearanceDeals', JSON.stringify(deals));
+  }
+
+  // ── ADD ──
+  function addDeal() {
+    const store   = document.getElementById('fStore').value.trim();
+    const product = document.getElementById('fProduct').value.trim();
+    const orig    = parseFloat(document.getElementById('fOrig').value);
+    const mark    = parseFloat(document.getElementById('fMark').value);
+    const city    = document.getElementById('fCity').value.trim();
+    const state   = document.getElementById('fState').value.trim().toUpperCase();
+    const zip     = document.getElementById('fZip').value.trim();
+
+    if (!store || !product || isNaN(orig) || isNaN(mark)) {
+      shake(document.querySelector('.btn-add')); return;
+    }
+    if (mark >= orig) {
+      alert('Markdown price must be less than original price.');
+      return;
+    }
+
+    deals.push({ id: Date.now(), store, product, orig, mark, city, state, zip });
+    save();
+
+    ['fStore','fProduct','fOrig','fMark','fCity','fState','fZip'].forEach(id => document.getElementById(id).value = '');
+    renderTable();
+  }
+
+  function shake(el) {
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'shake .4s ease';
+    setTimeout(() => el.style.animation = '', 400);
+  }
+
+  // ── DELETE ──
+  function deleteDeal(id) {
+    deals = deals.filter(d => d.id !== id);
+    save();
+    renderTable();
+  }
+
+  // ── SORT ──
+  function toggleSort(col) {
+    if (currentSort.col === col) {
+      currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort = { col, dir: col === 'savings' ? 'desc' : 'asc' };
+    }
+    renderTable();
+  }
+
+  // ── RENDER ──
+  function renderTable() {
+    const query      = document.getElementById('searchInput').value.toLowerCase();
+    const storeFilter = document.getElementById('storeFilter').value;
+    const sortVal    = document.getElementById('sortSelect').value;
+
+    // Build store filter dropdown
+    const stores = [...new Set(deals.map(d => d.store))].sort();
+    const sf = document.getElementById('storeFilter');
+    const prevVal = sf.value;
+    sf.innerHTML = '<option value="">All Stores</option>';
+    stores.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      if (s === prevVal) opt.selected = true;
+      sf.appendChild(opt);
+    });
+
+    // Datalist suggestions
+    const dl = document.getElementById('storeSuggestions');
+    dl.innerHTML = '';
+    stores.forEach(s => {
+      const opt = document.createElement('option'); opt.value = s; dl.appendChild(opt);
+    });
+
+    let filtered = deals.filter(d => {
+      const matchQ = !query || d.store.toLowerCase().includes(query) || d.product.toLowerCase().includes(query)
+        || (d.city||'').toLowerCase().includes(query) || (d.state||'').toLowerCase().includes(query) || (d.zip||'').includes(query);
+      const matchS = !storeFilter || d.store === storeFilter;
+      return matchQ && matchS;
+    });
+
+    // Sort by dropdown (override currentSort if using select)
+    let [sortKey, sortDir] = sortVal.split('-');
+    filtered.sort((a, b) => {
+      let va, vb;
+      if (sortKey === 'savings')     { va = a.orig - a.mark; vb = b.orig - b.mark; }
+      else if (sortKey === 'price')  { va = a.mark; vb = b.mark; }
+      else if (sortKey === 'pct')    { va = (a.orig - a.mark)/a.orig; vb = (b.orig - b.mark)/b.orig; }
+      else if (sortKey === 'store')  { va = a.store; vb = b.store; }
+      else if (sortKey === 'location') { va = (a.state||'')+(a.city||''); vb = (b.state||'')+(b.city||''); }
+      else                           { va = a.product; vb = b.product; }
+      if (typeof va === 'string') return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      return sortDir === 'asc' ? va - vb : vb - va;
+    });
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+        <div class="icon">🔍</div>
+        <p>No deals found. Try adjusting your search or <strong>add a new deal</strong> above.</p>
+      </div></td></tr>`;
+    } else {
+      filtered.forEach((d, i) => {
+        const savings = d.orig - d.mark;
+        const pct = ((savings / d.orig) * 100).toFixed(0);
+        const locParts = [d.city, d.state].filter(Boolean);
+        const locLine1 = locParts.join(', ');
+        const locLine2 = d.zip || '';
+        const locHtml = locLine1 || locLine2
+          ? `<div class="location-cell">${locLine1 ? `<span class="loc-city">${esc(locLine1)}</span>` : ''}${locLine2 ? `<span class="loc-zip">${esc(locLine2)}</span>` : ''}</div>`
+          : `<span style="color:#ccc;font-size:.8rem">—</span>`;
+        const tr = document.createElement('tr');
+        tr.style.animationDelay = `${i * 40}ms`;
+        tr.innerHTML = `
+          <td><span class="store-badge">${esc(d.store)}</span></td>
+          <td class="product-name">${esc(d.product)}</td>
+          <td>${locHtml}</td>
+          <td><span class="price-orig">$${d.orig.toFixed(2)}</span></td>
+          <td><span class="price-markdown">$${d.mark.toFixed(2)}</span></td>
+          <td><span class="savings-pill">▼ $${savings.toFixed(2)} &nbsp;·&nbsp; ${pct}% off</span></td>
+          <td><button class="btn-delete" onclick="deleteDeal(${d.id})" title="Remove">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Stats
+    const totalSavings = deals.reduce((s, d) => s + (d.orig - d.mark), 0);
+    const bestDeal = deals.reduce((best, d) => {
+      const pct = (d.orig - d.mark) / d.orig;
+      return (!best || pct > (best.orig - best.mark) / best.orig) ? d : best;
+    }, null);
+
+    document.getElementById('statDeals').textContent  = deals.length;
+    document.getElementById('statSavings').textContent = `$${totalSavings.toFixed(2)}`;
+    document.getElementById('statStores').textContent  = new Set(deals.map(d => d.store)).size;
+    document.getElementById('statBest').textContent    = bestDeal ? `${((bestDeal.orig - bestDeal.mark)/bestDeal.orig*100).toFixed(0)}% off` : '—';
+    document.getElementById('itemCount').textContent   = `${deals.length} deal${deals.length !== 1 ? 's' : ''}`;
+    document.getElementById('resultCount').textContent = filtered.length === deals.length
+      ? `Showing all ${deals.length} deals`
+      : `Showing ${filtered.length} of ${deals.length} deals`;
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Enter key shortcut
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && ['fStore','fProduct','fOrig','fMark','fCity','fState','fZip'].includes(document.activeElement.id)) {
+      addDeal();
+    }
+  });
+
+  // Shake animation
+  const style = document.createElement('style');
+  style.textContent = `@keyframes shake {
+    0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)}
+  }`;
+  document.head.appendChild(style);
+
+  renderTable();
+</script>
+</body>
+</html>
